@@ -1,0 +1,15 @@
+services:
+  stay-an0n:
+    build: .
+    container_name: stay-an0n
+    ports:
+      - "${STAYANON_PORT:-8080}:8080"
+    environment:
+      PORT: "8080"
+      HOST: "0.0.0.0"
+      MAX_UPLOAD_BYTES: "8388608"
+    volumes:
+      - ./data:/data
+      - ./uploads:/uploads
+    restart: unless-stopped
+    init: true

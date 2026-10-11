@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#171a18"><meta name="description" content="Stay-An0n — a self-hosted anonymous imageboard for your local network.">
+  <title>Stay-An0n — Anonymous Imageboard</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%2355a58a'/%3E%3Cpath d='M18 20h28M18 32h20M18 44h28' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/style.css?v=5">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#boards" aria-label="Stay-An0n home">stay-an<span class="brand-zero">0</span>n<span class="brand-cursor">_</span></a>
+    <span class="tagline">LOCAL NODE / ANONYMOUS BOARD SYSTEM</span>
+    <nav aria-label="Main navigation"><a href="#boards">[ INDEX ]</a><a href="#about">[ INFO ]</a><a href="/admin">[ ADMIN ]</a><button id="theme" class="icon-button" type="button" aria-label="Toggle color theme">THEME</button></nav>
+  </header>
+  <main>
+    <div class="status-line"><span class="status-dot"></span><span>LOCAL BOARD NETWORK</span><span class="status-separator">/</span><span>NO ACCOUNTS. JUST POSTS.</span></div>
+    <div id="notice" role="status" aria-live="polite"></div>
+    <section id="boards-view" class="view">
+      <div class="home-grid">
+        <aside class="index-sidebar">
+          <div class="side-heading">NODE STATUS</div>
+          <div class="node-status"><span class="status-dot"></span> LOCAL / ONLINE</div>
+          <div class="side-heading">DIRECTORY</div>
+          <a class="side-link active" href="#boards">/boards/ <span>INDEX</span></a>
+          <a class="side-link" href="#about">/about/ <span>INFO</span></a>
+          <div class="side-heading">PROTOCOL</div>
+          <p class="side-copy">NO ACCOUNTS<br>NO PROFILES<br>NO FEED ALGORITHM</p>
+          <p class="side-warning">// Your server operator can read posts and uploaded files.</p>
+        </aside>
+        <div class="home-main">
+          <div class="terminal-title"><span>root@stay-an0n:~</span><span>READ-ONLY INDEX</span></div>
+          <div class="index-intro"><p class="eyebrow">ANONYMOUS DISCUSSION SYSTEM</p><h1>Stay-An0n<span class="heading-slash">_</span></h1><p>Local imageboard. Threaded posts. No identity layer.</p></div>
+          <div class="section-heading"><h2>Available boards <span class="heading-slash">/</span></h2><span class="section-note">SELECT DIRECTORY</span></div>
+          <div id="boards" class="board-list" aria-live="polite"><div class="loading-card">Connecting to local node…</div></div>
+        </div>
+      </div>
+    </section>
+    <section id="board-view" class="view" hidden>
+      <div class="crumb"><a href="#boards">← All boards</a><span>/</span><strong id="board-title"></strong></div>
+      <div class="board-intro"><div><p class="eyebrow">BOARD DIRECTORY</p><h1 id="catalog-heading">Catalog</h1><p id="board-description" class="muted"></p></div><button id="new-thread" class="primary-button" type="button"><span>＋</span> Start a thread</button></div>
+      <form id="thread-form" class="post-form" enctype="multipart/form-data"><div class="form-heading"><div><p class="eyebrow">POST / NEW THREAD</p><h2>New thread</h2></div><span class="form-mark">01 / OP</span></div>
+        <label>Subject <span class="optional">OPTIONAL</span><input name="subject" maxlength="120" placeholder="subject (optional)" autocomplete="off"></label>
+        <label>Message <textarea name="body" maxlength="8000" rows="5" placeholder="message body // use >>POSTID to quote"></textarea><span class="field-hint">Up to 8,000 characters</span></label>
+        <div class="upload-field"><span class="field-label">Image attachment <span class="optional">OPTIONAL · 8 MB MAX</span></span><div class="upload-control"><label class="dropzone" data-dropzone for="thread-image"><input id="thread-image" name="image" type="file" accept="image/jpeg,image/png,image/gif,image/webp"><span class="upload-icon">↑</span><span class="drop-title">ATTACH FILE // drop or <u>browse</u></span><span class="drop-help">JPEG, PNG, GIF or WebP · max 8 MiB</span><span class="upload-placeholder" data-upload-placeholder><span class="upload-placeholder-icon">▧</span><strong>IMAGE PREVIEW BOX</strong><span>No image selected</span></span></label><div class="file-preview" data-preview hidden></div></div></div>
+        <div class="actions"><button type="submit" class="primary-button"><span>↗</span> Publish thread</button><button type="button" class="secondary-button" id="cancel-thread">Cancel</button><span class="form-footnote">Posting is anonymous by default.</span></div>
+      </form>
+      <div class="catalog-topline"><span>ACTIVE THREADS</span><span id="catalog-count"></span></div><div id="catalog" class="catalog"></div>
+      <div class="pagination"><button id="prev-page" class="secondary-button" type="button">← Newer</button><span id="page-label"></span><button id="next-page" class="secondary-button" type="button">Older →</button></div>
+    </section>
+    <section id="thread-view" class="view" hidden>
+      <div class="crumb"><a id="thread-board-link" href="#boards">← Back to board</a><span>/</span><span>THREAD VIEW</span></div>
+      <div class="board-intro"><div><p class="eyebrow">OPEN DISCUSSION</p><h1>Thread <span class="heading-slash">/</span></h1><p class="muted">Reply, quote a post, or attach an image.</p></div><button id="refresh-thread" class="secondary-button" type="button">↻ Refresh</button></div>
+      <div id="thread-posts" class="thread-posts"><div class="loading-card">Loading thread…</div></div>
+      <form id="reply-form" class="post-form reply-form" enctype="multipart/form-data"><div class="form-heading"><div><p class="eyebrow">ADD TO THE THREAD</p><h2>Write a reply</h2></div><span class="form-mark">REPLY</span></div>
+        <label>Message <textarea name="body" rows="4" maxlength="8000" placeholder="Reply with >>POSTID to reference a post…"></textarea></label>
+        <div class="upload-field"><span class="field-label">Image attachment <span class="optional">OPTIONAL · 8 MB MAX</span></span><div class="upload-control"><label class="dropzone compact-drop" data-dropzone for="reply-image"><input id="reply-image" name="image" type="file" accept="image/jpeg,image/png,image/gif,image/webp"><span class="upload-icon">↑</span><span class="drop-title">ATTACH FILE // drop or <u>browse</u></span><span class="drop-help">JPEG, PNG, GIF or WebP</span><span class="upload-placeholder" data-upload-placeholder><span class="upload-placeholder-icon">▧</span><strong>IMAGE PREVIEW BOX</strong><span>No image selected</span></span></label><div class="file-preview" data-preview hidden></div></div></div>
+        <div class="actions"><button type="submit" class="primary-button"><span>↗</span> Post reply</button><span class="form-footnote">Be thoughtful. Keep it local.</span></div>
+      </form>
+    </section>
+    <section id="about" class="about-panel"><div class="about-icon">[i]</div><div><p class="eyebrow">/ABOUT</p><h2>Local node. No identity layer.</h2><p>Stay-An0n is a self-hosted, thread-based imageboard designed for a trusted local network. No account or email is required. The server operator can access posts, uploaded files, and server logs; your network may expose device addresses. This is not an anonymity network.</p></div><div class="about-tag">BUILT FOR<br>YOUR LAN</div></section>
+  </main>
+  <div id="image-viewer" class="image-viewer" hidden role="dialog" aria-modal="true" aria-label="Image viewer">
+    <div class="image-viewer-window">
+      <div class="image-viewer-titlebar"><span><span class="viewer-status-dot"></span> ATTACHMENT_VIEWER.exe</span><button id="image-viewer-close" class="image-viewer-close" type="button" aria-label="Close image viewer">[ CLOSE ✕ ]</button></div>
+      <div class="image-viewer-meta"><span id="image-viewer-name">IMAGE PREVIEW</span><span>ESC TO CLOSE</span></div>
+      <div class="image-viewer-canvas"><img id="image-viewer-image" alt="Full-size thread attachment"><p id="image-viewer-error" hidden>IMAGE COULD NOT BE LOADED</p></div>
+      <div class="image-viewer-footer"><span>STAY-AN0N // LOCAL ATTACHMENT</span><a id="image-viewer-open-original" href="#" target="_blank" rel="noopener noreferrer">[ OPEN ORIGINAL ↗ ]</a></div>
+    </div>
+  </div>
+  <footer><span>STAY-AN0N <b>[OK]</b> SELF-HOSTED</span><span>END OF INDEX // KEEP PRIVATE DATA OFFLINE</span></footer>
+  <script src="/app.js?v=6"></script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#171a18">
+  <title>Stay-An0n // Admin Console</title>
+  <link rel="stylesheet" href="/style.css?v=5">
+  <link rel="stylesheet" href="/admin.css?v=1">
+</head>
+<body class="admin-page">
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Stay-An0n home">stay-an<span class="brand-zero">0</span>n<span class="brand-cursor">_</span></a>
+    <span class="tagline">LOCAL NODE / CONTROL PLANE</span>
+    <nav aria-label="Admin navigation"><a href="/">[ PUBLIC BOARDS ]</a><button id="logout" class="icon-button" type="button" hidden>[ LOG OUT ]</button></nav>
+  </header>
+  <main class="admin-main">
+    <div class="status-line"><span class="status-dot"></span><span>ADMIN CONSOLE</span><span class="status-separator">/</span><span>PRIVILEGED ACTIONS ARE AUDITED</span></div>
+    <div id="admin-notice" role="status" aria-live="polite"></div>
+
+    <section id="login-panel" class="admin-login">
+      <p class="eyebrow">AUTHENTICATION REQUIRED</p>
+      <h1>Admin access<span class="heading-slash">_</span></h1>
+      <p class="muted">Enter the admin password/token configured for this Stay-An0n instance. It is never sent to any external service.</p>
+      <form id="login-form">
+        <label for="admin-password">ADMIN PASSWORD / TOKEN</label>
+        <input id="admin-password" name="password" type="password" autocomplete="current-password" required autofocus spellcheck="false">
+        <button class="primary-button" type="submit">UNLOCK CONSOLE ↗</button>
+      </form>
+      <p class="login-hint">Default local setup: read <code>data/admin-token.txt</code> on the server. In PowerShell: <code>Get-Content .\data\admin-token.txt</code>. If <code>STAYANON_ADMIN_TOKEN</code> is configured, use that value instead.</p>
+    </section>
+
+    <section id="dashboard" hidden>
+      <div class="admin-welcome"><div><p class="eyebrow">CONTROL PLANE // AUTHENTICATED</p><h1>Stay-An0n admin<span class="heading-slash">_</span></h1><p class="muted">Manage boards, posts, access restrictions, and server behavior.</p></div><button id="refresh-dashboard" class="secondary-button" type="button">↻ Refresh data</button></div>
+      <div id="stats" class="stats-grid" aria-live="polite"></div>
+      <div class="admin-tabs" role="tablist" aria-label="Admin sections">
+        <button type="button" role="tab" data-tab="overview" aria-selected="true" class="active">Overview</button>
+        <button type="button" role="tab" data-tab="boards" aria-selected="false">Boards</button>
+        <button type="button" role="tab" data-tab="moderation" aria-selected="false">Moderation</button>
+        <button type="button" role="tab" data-tab="bans" aria-selected="false">IP bans</button>
+        <button type="button" role="tab" data-tab="settings" aria-selected="false">Settings</button>
+        <button type="button" role="tab" data-tab="audit" aria-selected="false">Audit log</button>
+        <button type="button" role="tab" data-tab="backup" aria-selected="false">Backup</button>
+      </div>
+
+      <section class="admin-panel" data-panel="overview">
+        <div class="section-heading"><h2>System overview <span class="heading-slash">/</span></h2><span class="section-note">LIVE DATABASE COUNTS</span></div>
+        <div class="overview-grid">
+          <div class="admin-box"><h3>Board status</h3><div id="overview-boards" class="compact-list"></div></div>
+          <div class="admin-box"><h3>Recent activity</h3><div id="overview-audit" class="compact-list"></div></div>
+        </div>
+        <div class="admin-box roadmap-box"><h3>Feature priorities</h3>
+          <div class="priority-row"><span class="priority p0">P0</span><div><strong>Access and data safety</strong><p>Password-gated admin, protected endpoints, action audit, downloadable backups.</p></div><span class="priority-state">ACTIVE</span></div>
+          <div class="priority-row"><span class="priority p1">P1</span><div><strong>Everyday moderation</strong><p>Board management, searchable posts, thread locking, post/thread deletion, IP bans.</p></div><span class="priority-state">ACTIVE</span></div>
+          <div class="priority-row"><span class="priority p2">P2</span><div><strong>Abuse prevention</strong><p>Next recommended: user reports, keyword/spam filters, duplicate-image detection, and per-board rules or announcements.</p></div><span class="priority-state planned">NEXT</span></div>
+          <div class="priority-row"><span class="priority p3">P3</span><div><strong>Operations and insights</strong><p>Next recommended: backup restore workflow, scheduled retention policies, and richer usage graphs.</p></div><span class="priority-state planned">LATER</span></div>
+        </div>
+        <p class="admin-warning">IP bans apply to the network address seen by the server, not to a verified account. Shared Wi-Fi can mean multiple people share one address, and old posts have no retroactively available IP record.</p>
+      </section>
+
+      <section class="admin-panel" data-panel="boards" hidden>
+        <div class="section-heading"><h2>Board management <span class="heading-slash">/</span></h2><span class="section-note">CREATE · RENAME · CONFIGURE · REMOVE</span></div>
+        <form id="create-board-form" class="admin-box form-grid">
+          <h3 class="full-width">Create a board</h3>
+          <label>Board ID <input name="id" required maxlength="24" pattern="[a-z0-9_-]{1,24}" placeholder="e.g. games"></label>
+          <label>Display name <input name="title" required maxlength="80" placeholder="Gaming"></label>
+          <label class="full-width">Description <input name="description" maxlength="300" placeholder="Games, hardware, and discussion"></label>
+          <div class="full-width"><button class="primary-button" type="submit">＋ CREATE BOARD</button><p class="field-hint">IDs use lowercase letters, numbers, hyphens, and underscores. The ID stays stable; use the display name to rename a board.</p></div>
+        </form>
+        <div id="board-management" class="board-management"></div>
+      </section>
+
+      <section class="admin-panel" data-panel="moderation" hidden>
+        <div class="section-heading"><h2>Content moderation <span class="heading-slash">/</span></h2><span class="section-note">POSTS · THREADS · LOCKING</span></div>
+        <form id="moderation-search" class="admin-box moderation-filters">
+          <label>Search posts <input name="q" maxlength="160" placeholder="text, subject, name, or post ID"></label>
+          <label>Board <select name="board" id="moderation-board"><option value="">All boards</option></select></label>
+          <button class="primary-button" type="submit">SEARCH</button>
+          <button class="secondary-button" id="clear-search" type="button">CLEAR</button>
+        </form>
+        <div class="moderation-toolbar"><span id="moderation-count">Latest posts</span><div><button id="mod-newer" class="secondary-button" type="button" disabled>← Newer</button><button id="mod-older" class="secondary-button" type="button">Older →</button></div></div>
+        <div id="moderation-results" class="moderation-results"><p class="loading-card">Unlock admin access to load posts.</p></div>
+      </section>
+
+      <section class="admin-panel" data-panel="bans" hidden>
+        <div class="section-heading"><h2>IP access control <span class="heading-slash">/</span></h2><span class="section-note">TEMPORARY OR PERMANENT</span></div>
+        <form id="ban-form" class="admin-box form-grid">
+          <h3 class="full-width">Add or update an IP ban</h3>
+          <label>IPv4 or IPv6 address <input id="ban-ip" name="ip" required placeholder="192.168.1.42" autocomplete="off" spellcheck="false"></label>
+          <label>Duration <select name="hours"><option value="0">Permanent</option><option value="1">1 hour</option><option value="24">24 hours</option><option value="168">7 days</option><option value="720">30 days</option></select></label>
+          <label class="full-width">Reason (optional) <input name="reason" maxlength="500" placeholder="Spam, abuse, or rule violation"></label>
+          <div class="full-width"><button class="danger-button" type="submit">⛔ APPLY IP BAN</button></div>
+        </form>
+        <p class="admin-warning">Only future posting is blocked. This is IP-based and can affect other users on the same network; it can also be bypassed if the connection's IP changes.</p>
+        <div id="ban-list" class="ban-list"></div>
+      </section>
+
+      <section class="admin-panel" data-panel="settings" hidden>
+        <div class="section-heading"><h2>Posting and retention settings <span class="heading-slash">/</span></h2><span class="section-note">VALIDATED SERVER LIMITS</span></div>
+        <form id="settings-form" class="admin-box form-grid">
+          <label>Minimum retained posts <input name="min_posts" type="number" min="0" max="100000" required></label>
+          <label>Maximum characters per post <input name="max_text_chars" type="number" min="1" max="50000" required></label>
+          <label>Seconds between posts per IP <input name="rate_seconds" type="number" min="0" max="3600" required></label>
+          <label>Prune candidates per board cycle <input name="prune_batch" type="number" min="1" max="50" required></label>
+          <div class="full-width"><button class="primary-button" type="submit">SAVE SETTINGS</button><p class="field-hint">Board-specific thread/post limits, reply bump limits, and retention grace periods can be changed from each board's card.</p></div>
+        </form>
+        <div class="admin-box"><h3>Maintenance</h3><p class="muted">Run the current automatic-pruning policy now. It removes only eligible older content when a board is over its configured limits.</p><button id="run-prune" class="secondary-button" type="button">RUN PRUNER NOW</button></div>
+      </section>
+
+      <section class="admin-panel" data-panel="audit" hidden>
+        <div class="section-heading"><h2>Administrative audit <span class="heading-slash">/</span></h2><span class="section-note">MOST RECENT 100 EVENTS</span></div>
+        <div id="audit-list" class="audit-list"></div>
+      </section>
+
+      <section class="admin-panel" data-panel="backup" hidden>
+        <div class="section-heading"><h2>Backup and recovery <span class="heading-slash">/</span></h2><span class="section-note">DATABASE + UPLOADED IMAGES</span></div>
+        <div class="admin-box">
+          <h3>Download a full backup</h3>
+          <p>Creates a ZIP containing a consistent SQLite snapshot and all uploaded image files. Store it somewhere private: it contains posts and moderation records, including IP addresses collected after this update.</p>
+          <button id="download-backup" class="primary-button" type="button">↓ DOWNLOAD BACKUP ZIP</button>
+          <p class="field-hint">Backup restoration is not included yet. Do not replace the live database while the server is running without a documented restore procedure.</p>
+        </div>
+      </section>
+    </section>
+    <footer class="admin-footer"><span>STAY-AN0N / ADMIN <b>[RESTRICTED]</b></span><span>KEEP THE ADMIN PASSWORD PRIVATE</span></footer>
+  </main>
+  <script src="/admin.js?v=1"></script>
+</body>
+</html>
