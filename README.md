@@ -1,120 +1,253 @@
 # Stay-An0n
 
-A lightweight, self-hosted anonymous imageboard for a trusted home or school LAN. It includes boards, thread catalogs, anonymous OPs/replies, local image uploads, post references/backlinks, light/dark themes, SQLite persistence, basic rate limiting, and automatic retention pruning. It uses Python's standard library and SQLite; there is no frontend build step, external API, account system, or runtime internet dependency.
+## 📖 Overview
 
-> **Privacy note:** “Anonymous” means no public account is required. It does not mean untraceable. The server sees connecting IP addresses, the host operator can read posts and files, and your Wi-Fi/router/firewall may log device activity. Do not publish private or identifying information. Keep this service on a trusted LAN; do not port-forward it to the public internet.
+**Stay-An0n** is a minimal, self-contained imageboard built using Python's standard library and SQLite. It features boards, thread catalogs, anonymous OPs and replies, local image uploads, post references/backlinks, light/dark themes, SQLite persistence, basic rate limiting, and automatic retention pruning.
 
-## Quick start (Docker)
+**Zero Overhead:** There is no frontend build step, external API, user account system, or runtime internet dependency.
 
-Requirements: Docker Engine with the Compose plugin, or Docker Desktop. From this directory:
+> 🔒 **Privacy Note:** "Anonymous" means no public account is required. It does *not* mean untraceable. The server sees connecting IP addresses, the host operator can read posts and files, and your Wi-Fi/router/firewall may log device activity. Do not publish private or identifying information. Keep this service on a trusted LAN; **do not port-forward it to the public internet**.
 
-```sh
+## ✨ Features
+
+* **Boards & Catalogs:** Create, rename, disable, or delete boards with searchable thread catalogs.
+
+* **Anonymous Interaction:** Simple anonymous posting for OPs and replies with optional image attachments.
+
+* **Backlinks & References:** Use the `[quote]` link or type `>>PUBLICID` (10-character hex ID) to reference other posts.
+
+* **Theming:** Built-in charcoal dark theme and a clean light utility theme.
+
+* **Robust Storage:** SQLite-backed persistence with automatic retention pruning and easy backup tools.
+
+* **Admin Console:** Full moderation controls (IP bans, thread locking, post deletion, board management, audit logs, and backups).
+
+## 🚀 Quick Start
+
+### Option 1: Docker (Recommended)
+
+**Requirements:** Docker Engine with the Compose plugin, or Docker Desktop.
+
+From the project directory, run:
+
+```
 docker compose up -d --build
+
 ```
 
-Open `http://localhost:8080`. To use it from another device on the same network, find the host's LAN IP and open `http://HOST-LAN-IP:8080` on that device. The server binds to `0.0.0.0` inside the container.
+* Open [**http://localhost:8080**](http://localhost:8080) in your browser.
 
-Find the host IP:
+* To access it from another device on the same network, find your host's LAN IP and navigate to `http://HOST-LAN-IP:8080`.
 
-- Linux: `hostname -I` (choose the LAN address, often `192.168.x.x`)
-- Windows: `ipconfig` (look for the active adapter's IPv4 Address)
-- macOS: `ipconfig getifaddr en0` (Wi-Fi; interface can vary)
+#### Finding your Host LAN IP:
 
-If needed, allow inbound TCP port 8080 on the host firewall **only for your private/local network**. Do not configure router port forwarding. Anyone on a reachable network who can connect can browse and post; restrict the firewall/Wi-Fi network if that is not desired.
+* **Linux:** `hostname -I` (choose your LAN address, e.g., `192.168.x.x`)
 
-## Native start (no Docker)
+* **Windows:** `ipconfig` (look for the active adapter's IPv4 Address)
 
-Requires Python 3.11+ and no pip packages:
+* **macOS:** `ipconfig getifaddr en0` (Wi-Fi; interface can vary)
 
-```sh
+*Note: Allow inbound TCP port 8080 on your host firewall **only for your private/local network**. Do not configure router port forwarding.*
+
+### Option 2: Native Start (No Docker)
+
+**Requirements:** Python 3.11+ (no external `pip` packages required).
+
+```
 python server.py
+
 ```
 
-By default it listens on `0.0.0.0:8080`. Override `PORT`, `HOST`, `STAYANON_DATA`, `STAYANON_UPLOADS`, and `MAX_UPLOAD_BYTES` with environment variables as needed.
+By default, the server listens on `0.0.0.0:8080`. Override settings using environment variables (`PORT`, `HOST`, `STAYANON_DATA`, `STAYANON_UPLOADS`, `MAX_UPLOAD_BYTES`).
 
-## Admin console
+## 🛠️ Admin Console
 
-Open `http://localhost:8080/admin` (or `http://<server-LAN-IP>:8080/admin`) and enter the admin password/token. On first launch, a high-entropy token is generated in `data/admin-token.txt` (Docker: `./data/admin-token.txt`). In PowerShell, read it with `Get-Content .\data\admin-token.txt`; in Linux/macOS use `cat data/admin-token.txt`. If `STAYANON_ADMIN_TOKEN` is configured in the environment, use that value instead. The token is held in the current browser tab's session storage and sent only to this server in the `X-Admin-Token` header.
+Access the admin panel at **`http://localhost:8080/admin`** and enter your admin password/token.
 
-The console includes a dashboard, board create/rename/disable/delete controls, searchable post moderation, thread locking, reply/thread deletion, temporary or permanent IP bans and unbans, posting settings, the pruning tool, recent audit history, and downloadable backups of the database plus uploaded images. Deleting a board removes all threads, posts, and attachments belonging to it. Download a backup before destructive actions.
+### Admin Token
 
-The admin page is available to visitors but all privileged APIs require the token. Keep the token private and use the console only on a trusted network. This built-in server is intended for a local network; do not expose it directly to the public internet without a stronger deployment setup and HTTPS. IP moderation records the address directly seen by the server starting with this version; previous posts cannot be assigned a historical address.
+* On first launch, a high-entropy token is generated at `data/admin-token.txt` (Docker: `./data/admin-token.txt`).
 
-See [ADMIN_FEATURES.md](ADMIN_FEATURES.md) for the feature priorities and the follow-up roadmap. Example API calls from the project directory:
+* **Retrieve Token:**
 
-```sh
+  * **Linux / macOS:** `cat data/admin-token.txt`
+
+  * **Windows (PowerShell):** `Get-Content .\data\admin-token.txt`
+
+* Alternatively, set the `STAYANON_ADMIN_TOKEN` environment variable.
+
+* The token is stored securely in the current browser tab's session storage and sent exclusively via the `X-Admin-Token` header.
+
+### Admin Capabilities
+
+* Dashboard overview and system status.
+
+* Board creation, renaming, disabling, and deletion (deletes all associated threads, posts, and attachments).
+
+* Searchable post moderation and thread locking.
+
+* Reply and thread deletion.
+
+* Temporary or permanent IP bans and unbans.
+
+* Posting settings and pruning tools.
+
+* Recent audit history and downloadable backups (database + uploaded images).
+
+## 💻 Usage Guide
+
+* **Posting:** Choose a board, click **New thread** to create an OP, or open an existing thread to reply.
+
+* **Images:** JPEG, PNG, GIF, and WebP uploads are accepted (8 MiB default cap). Click images to view them at full size. Upload forms feature local previews, drag-and-drop support, and pre-flight file checks.
+
+* **References:** Use the `[quote]` link or type `>>PUBLICID` to link to other posts.
+
+* **Theme:** Switch between light and dark modes using the theme toggle.
+
+## 🗄️ Storage & Backups
+
+* **SQLite Database:** `./data/stayanon.sqlite3`
+
+* **Admin Token:** `./data/admin-token.txt`
+
+* **Uploaded Images:** `./uploads/`
+
+These directories are bind-mounted into the Docker container, ensuring data persists across container updates.
+
+### Creating a Backup
+
+Stop the service before performing a consistent file-level backup:
+
+```
+docker compose stop
+tar -czf stay-an0n-backup-$(date +%F).tar.gz data uploads
+docker compose start
+
+```
+
+*To restore:* Stop the service, preserve your current `data/` and `uploads/` directories, extract the backup over them, and restart. Never delete `data/` or `uploads/` during standard updates.
+
+## ⏱️ Automatic Retention & Pruning
+
+Pruning runs automatically on a 5-minute background schedule and after successful posts:
+
+1. When a board exceeds its thread or post limit, eligible old **threads** are ranked using post interaction scores and incoming quote references (oldest activity acts as a deterministic tie-breaker).
+
+2. Each pass considers up to 5 lowest-scoring eligible posts. Individual replies can be deleted; if an OP is selected, its entire thread is removed to prevent orphaned replies.
+
+3. Posts younger than a board's `grace_hours` are exempt. The minimum-retention floor prevents pruning below the configured post count.
+
+**Default Board Settings:**
+
+* `max_threads = 150`
+
+* `max_posts = 1200`
+
+* `grace_hours = 24`
+
+* `min_posts = 30`
+
+* `bump_limit = 300`
+  *(All values are customizable per board in the admin console).*
+
+## 🔌 API Overview
+
+### Public Endpoints
+
+* `GET /api/health`
+
+* `GET /api/boards`
+
+* `GET /api/boards/{board}/catalog?page=1&limit=30`
+
+* `POST /api/boards/{board}/threads` (Multipart form: `subject`, `body`, optional `image`)
+
+* `GET /api/threads/{threadPublicId}`
+
+* `POST /api/threads/{threadPublicId}/replies` (Multipart form: `body`, optional `image`)
+
+* `GET /uploads/{randomFilename}`
+
+### Admin Endpoints *(Requires `X-Admin-Token` header)*
+
+* `GET /api/admin/status`
+
+* `GET /api/admin/posts`
+
+* `GET /api/admin/bans`
+
+* `GET /api/admin/backup`
+
+* `POST /api/admin/boards`
+
+* `PATCH /api/admin/boards/{id}`
+
+* `DELETE /api/admin/boards/{id}`
+
+* `PATCH /api/admin/threads/{publicId}`
+
+* `PATCH /api/admin/settings`
+
+* `POST /api/admin/bans`
+
+* `POST /api/admin/bans/remove`
+
+* `POST /api/admin/prune`
+
+* `DELETE /api/admin/posts/{publicId}`
+
+#### Example API Call:
+
+```
 TOKEN="$(cat data/admin-token.txt)"
 curl -H "X-Admin-Token: $TOKEN" http://localhost:8080/api/admin/status
-curl -X POST -H "X-Admin-Token: $TOKEN" -H 'Content-Type: application/json' \
-  -d '{"id":"games","title":"Games","description":"Games and play"}' \
-  http://localhost:8080/api/admin/boards
+
 ```
 
-## Using the board
+## 🔍 Troubleshooting & FAQs
 
-- Choose a board, then **New thread** to create an OP.
-- Open a thread to reply, optionally attaching an image.
-- Use the **[quote]** link or type `>>PUBLICID` (the visible ID is ten hexadecimal characters) to reference a post.
-- Images open at full size when clicked. JPEG, PNG, GIF and WebP uploads are accepted, with an 8 MiB default cap.
-- Use **Theme** to switch light/dark mode.
-- Image upload forms show a local preview before posting, support drag-and-drop, and check the file type and 8 MiB limit before sending. If the browser rejects an image, try saving it as JPEG, PNG, GIF, or WebP.
+* **Image Upload Issues (`413` error):** The file or request exceeds `MAX_UPLOAD_BYTES` (default 8 MiB). Restart the server after updating the limit.
 
-## Storage and backups
+* **Image Upload Issues (`415` error):** File signature does not match a supported image type (JPEG, PNG, GIF, WebP). Renaming file extensions will not convert formats.
 
-- SQLite database: `./data/stayanon.sqlite3`
-- Admin token: `./data/admin-token.txt`
-- Uploaded images: `./uploads/`
+* **Missing Images:** Verify that the `uploads/` directory (or Docker bind mount `./uploads:/uploads`) is writable and persistent.
 
-These are bind-mounted into the container, so they survive container replacement. Stop the service before a consistent file-level backup:
+* **Port Conflicts:** If port 8080 is in use, run Docker with a custom port:
 
-```sh
-docker compose stop
- tar -czf stay-an0n-backup-$(date +%F).tar.gz data uploads
- docker compose start
+  ```
+  STAYANON_PORT=8081 docker compose up -d --build
+  
+  ```
+
+  Then visit `http://localhost:8081`.
+
+* **Updates not showing:**
+
+  * *Docker:* Rebuild using `docker compose up -d --build`.
+
+  * *Native:* Restart `python server.py` and hard-refresh your browser (`Ctrl + F5`).
+
+## 🧪 Tests
+
+Run the test suite using Python's `unittest`:
+
 ```
-
-Restore by stopping the service, preserving a copy of current `data/` and `uploads/`, extracting the backup over those directories, and starting again. Never delete `data/` or `uploads/` as part of an ordinary update. For a clean reset, stop the service and deliberately move those folders elsewhere before recreating empty ones.
-
-## Automatic retention / pruning
-
-Pruning runs on a five-minute background schedule and after successful posting. When a board exceeds its thread or post limit, it ranks old eligible **threads** using the sum of post interaction scores and incoming quote references, with oldest activity as a deterministic tie-breaker. Each pruning pass considers up to five lowest-scoring eligible posts. Eligible replies can be deleted individually; if an OP is selected, its entire thread is deleted so replies are never orphaned. A pass may remove more than five rows when it must remove an OP and its replies. Posts younger than the board's `grace_hours` are not eligible. The minimum-retention floor prevents pruning below the configured number of posts.
-
-Board defaults are `max_threads=150`, `max_posts=1200`, `grace_hours=24`, `min_posts=30`, and `bump_limit=300`. Per-board values can be edited in the admin console. Effective global settings include `min_posts`, `max_text_chars`, `rate_seconds`, and `prune_batch`; per-board retention grace is configured on each board. Pruning and moderation actions are recorded in the audit log. Deleted post text is not copied into the audit log.
-
-## API overview
-
-- `GET /api/health`, `GET /api/boards`
-- `GET /api/boards/{board}/catalog?page=1&limit=30`
-- `POST /api/boards/{board}/threads` (multipart form: `subject`, `body`, optional `image`)
-- `GET /api/threads/{threadPublicId}`
-- `POST /api/threads/{threadPublicId}/replies` (multipart form: `body`, optional `image`)
-- `GET /uploads/{randomFilename}`
-- Admin: `GET /api/admin/status`, `GET /api/admin/posts`, `GET /api/admin/bans`, `GET /api/admin/backup`, `POST /api/admin/boards`, `PATCH /api/admin/boards/{id}`, `DELETE /api/admin/boards/{id}`, `PATCH /api/admin/threads/{publicId}`, `PATCH /api/admin/settings`, `POST /api/admin/bans`, `POST /api/admin/bans/remove`, `POST /api/admin/prune`, `DELETE /api/admin/posts/{publicId}`
-
-## Frontend and image upload troubleshooting
-
-- The image chooser accepts JPEG, PNG, GIF, and WebP. It displays a preview and file size before posting.
-- If an upload returns `413`, the image or multipart request exceeds the configured limit. The default is 8 MiB (`MAX_UPLOAD_BYTES` / `MAX_UPLOAD_BYTES` environment setting); restart the server after changing it.
-- If an upload returns `415`, the file signature does not match a supported image type. Renaming a file does not convert its format.
-- If a post succeeds but the image does not appear, check that the `uploads/` directory (or Docker bind mount `./uploads:/uploads`) is writable and persistent.
-- In Docker, rebuild after updating the project with `docker compose up -d --build`. For native Windows, stop `python server.py` with Ctrl+C and start it again so the updated backend is loaded. Refresh the page with Ctrl+F5 to load the updated frontend.
-
-## Tests and troubleshooting
-
-Run tests with:
-
-```sh
 python -m unittest discover -s tests -v
+
 ```
 
-Check service logs: `docker compose logs -f`. Check health: `curl http://localhost:8080/api/health`. If another service uses port 8080, launch with `STAYANON_PORT=8081 docker compose up -d --build` and visit port 8081. The app stores UTC epoch timestamps and renders them in each visitor's local time zone.
+Check health status: `curl http://localhost:8080/api/health`
 
-## Current scope / limitations
+View container logs: `docker compose logs -f`
 
-This is a compact first implementation, not a hardened public imageboard. It has no user accounts, no external hosting, no WebSockets, and no full-featured moderation dashboard. The server stores IPs only transiently as keys in the rate-limit table (the current implementation keeps the last post time per IP; it does not write IPs into posts). Uploaded files are signature-checked and randomized, but image dimensions are not decoded or stripped, and server logs contain client IP addresses. For public deployment, add stronger authentication, CSRF protection, reverse-proxy TLS, configurable logging retention, and image re-encoding/dimension checks.
+## 🛡️ Scope & Limitations
 
-## Frontend design profile
+Stay-An0n is engineered as a compact, self-contained solution for trusted local networks, not as a hardened public imageboard:
 
-The interface uses a charcoal-first palette with neon-green links and status indicators, monospace typography throughout, square borders, compact board rows, a split directory/sidebar homepage, and small catalog thumbnails. It intentionally avoids hero marketing copy, rounded cards, decorative illustrations, and social-feed styling. On narrow screens, the sidebar becomes a compact top directory and catalog cards remain dense. The thread creation form is visible on board pages; the “Start a thread” control scrolls to it rather than opening a modal. Theme switching defaults to charcoal and can switch to the light utility theme.
-#   S t a y - A n 0 n  
- 
+* No user accounts or external hosting requirements.
+
+* No WebSockets or complex heavy frontend frameworks.
+
+* IP addresses are handled transiently for rate-limiting and active moderation; historical posts do not store permanent IP columns by default.
+
+* For public/production deployments, ensure you add reverse-proxy TLS termination, robust authentication, CSRF protection, and log retention policies.
